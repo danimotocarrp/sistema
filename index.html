@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dani Moto CarRP - Sistema de Gestão</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6; --text-color: #0e141e; --primary: #2086c2;
+            --secondary: #b9e5f5; --header-bg: #ffffff; --card-bg: #ffffff;
+            --shadow: rgba(14, 20, 30, 0.15); --border: #ccc;
+        }
+
+        .dark-mode {
+            --bg-color: #0e141e; --text-color: #f4f7f6; --primary: #2086c2;
+            --secondary: #b9e5f5; --header-bg: #1a2436; --card-bg: #1a2436;
+            --shadow: rgba(0, 0, 0, 0.5); --border: #334155;
+        }
+
+        /* Ajuste de contraste para botões no modo dark */
+        .dark-mode .btn-primary { color: #0e141e !important; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); transition: 0.3s; padding-top: 100px; }
+
+        header {
+            position: fixed; top: 0; width: 100%; height: 80px;
+            background-color: var(--header-bg); display: flex; justify-content: space-between;
+            align-items: center; padding: 0 20px; box-shadow: 0 4px 15px var(--shadow); z-index: 1000;
+        }
+        .logo img { height: 60px; }
+        nav { display: flex; gap: 15px; align-items: center; }
+        nav a, .theme-btn { text-decoration: none; color: var(--text-color); font-weight: bold; cursor: pointer; border: none; background: none; }
+
+        /* Estilo dos Modais */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg); padding: 25px; border-radius: 12px;
+            width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        /* Abas */
+        .tab-container { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+        .tab { padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .tab.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Elementos de UI */
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-color); color: var(--text-color); }
+        .btn-primary { background: var(--primary); color: #fff; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-danger { background: #e74c3c; color: #fff; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
+        
+        /* Resultados da Consulta (Relatório) */
+        .resultado-card {
+            background: var(--bg-color); border: 1px solid var(--border);
+            padding: 15px; border-radius: 10px; margin-top: 15px;
+            box-shadow: 0 4px 10px var(--shadow); display: flex; justify-content: space-between; align-items: center;
+        }
+        .info-relatorio h4 { color: var(--primary); margin-bottom: 5px; }
+        .acoes-icons { font-size: 20px; cursor: pointer; display: flex; gap: 15px; }
+
+        /* Estilo Home */
+        main { text-align: center; }
+        .home-card { background: var(--card-bg); padding: 40px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 30px var(--shadow); }
+
+        /* Tabelas O.S */
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        th { background: var(--primary); color: white; }
+        .total-geral { text-align: right; font-size: 1.4em; font-weight: bold; color: var(--primary); margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEhrN1KBe8sQKe7h8bnxC3-36ZaDu228yqknNmU2nL2pA19bg9ycjgXAciifU5Q8DGrkXE8EsD1hz7I0aIiWx23oAFR0w2m36nOsexMYdjITo0T8dPg9-jsJdpWnLzodSgOo_OmwE-lVNeYTde4g21o8uD203-23_mwYGgEGCMBdTffQF8yaxXcPvDxnu94"></div>
+        <nav>
+            <a onclick="fecharModais()">Home</a>
+            <a onclick="abrirOS()">Ordem de Serviço</a>
+            <a onclick="abrirModal('modalCadastro')">Cadastro</a>
+            <a onclick="abrirModal('modalConsulta')">Consultar</a>
+            <button class="theme-btn" onclick="toggleTheme()">🌓 Tema</button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="home-card">
+            <h1>Dani Moto CarRP</h1>
+            <p>📱 (16) 99402-9362</p>
+            <p>📍 RUA: Vicente Pereira Brito, 69</p>
+            <p>🏘️ BAIRRO: Orestes Lopes de Camargo - CEP: 14066-444</p>
+            <button class="btn-primary" style="margin-top: 25px;" onclick="abrirOS()">Acessar Sistema</button>
+        </div>
+    </main>
+
+    <div id="modalConsulta" class="modal">
+        <div class="modal-content">
+            <h2>Consultar Registros</h2>
+            <div style="margin: 15px 0;">
+                <input type="radio" name="tipoBusca" id="radioPlaca" checked value="placa"> <label for="radioPlaca">Placa do Veículo</label>
+                <input type="radio" name="tipoBusca" id="radioCPF" value="cpf" style="margin-left: 15px;"> <label for="radioCPF">CPF do Cliente</label>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="inputBusca" placeholder="Digite o termo de busca...">
+                <button class="btn-primary" onclick="realizarConsulta()">Pesquisar</button>
+            </div>
+
+            <div id="containerResultados" style="margin-top: 20px;">
+                <p style="text-align: center; color: #888;">Nenhum resultado para exibir.</p>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="limparConsulta()">Nova Consulta</button>
+                <button class="btn-danger" onclick="fecharModais()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalCadastro" class="modal">
+        <div class="modal-content">
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab(event, 'tabVeiculo')">Veículos</div>
+                <div class="tab" onclick="switchTab(event, 'tabCliente')">Clientes</div>
+            </div>
+
+            <div id="tabVeiculo" class="tab-content active">
+                <h3>Cadastro de Veículo</h3>
+                <div style="margin: 10px 0;">
+                    <input type="radio" name="vTipo" value="Carro" checked> Carro
+                    <input type="radio" name="vTipo" value="Moto"> Moto
+                </div>
+                <input type="text" placeholder="Placa">
+                <input type="text" placeholder="Modelo">
+                <input type="text" placeholder="CPF do Proprietário">
+                <button class="btn-primary">Salvar Veículo</button>
+            </div>
+
+            <div id="tabCliente" class="tab-content">
+                <h3>Cadastro de Cliente</h3>
+                <input type="text" placeholder="Nome / Razão Social">
+                <input type="text" placeholder="CPF">
+                <input type="text" placeholder="Telefone">
+                <button class="btn-primary">Salvar Cliente</button>
+            </div>
+            <button class="btn-danger" style="margin-top: 20px;" onclick="fecharModais()">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalOS" class="modal">
+        <div class="modal-content">
+            <h2>Nova Ordem de Serviço</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px;">
+                <div><strong>Nº O.S:</strong> <span id="numOS">0000</span></div>
+                <div><strong>Data:</strong> <input type="date" id="dataOS"></div>
+                <div>
+                    <input type="radio" name="osTipo" value="Carro"> Carro
+                    <input type="radio" name="osTipo" value="Moto"> Moto
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <input type="text" id="osCpf" placeholder="CPF para buscar cliente..." onblur="buscarClienteOS()">
+                <input type="text" id="osNome" placeholder="Nome / Razão Social" readonly>
+                <input type="text" id="osTel" placeholder="Telefone" readonly>
+            </div>
+
+            <table id="tabelaItens">
+                <thead>
+                    <tr>
+                        <th>PEÇAS</th><th>QUANT.</th><th>DESCRIÇÃO</th><th>VALOR UNIT.</th><th>VALOR</th><th>X</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button class="btn-primary" onclick="adicionarLinhaOS()">+ Linha</button>
+            
+            <div class="total-geral">TOTAL GERAL: R$ <span id="totalGeral">0.00</span></div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; text-align: center;">
+                <div><p>__________________________</p><p>ASSINATURA CLIENTE</p></div>
+                <div><p>__________________________</p><p>RESPONSÁVEL</p></div>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn-primary">Finalizar e Salvar</button>
+                <button class="btn-danger" onclick="limparOS()">Limpar</button>
+                <button class="btn-danger" onclick="fecharModais()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funções de Sistema
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+        
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Lógica de Consulta
+        function realizarConsulta() {
+            const termo = document.getElementById('inputBusca').value;
+            const container = document.getElementById('containerResultados');
+            
+            if(!termo) { alert("Digite algo para buscar!"); return; }
+
+            // Simulando o resultado dinâmico (Relatório)
+            container.innerHTML = `
+                <div class="resultado-card">
+                    <div class="info-relatorio">
+                        <h4>O.S #1234 - ${termo.toUpperCase()}</h4>
+                        <p><strong>Cliente:</strong> João da Silva | <strong>Veículo:</strong> Honda Civic</p>
+                        <p><strong>Serviço:</strong> Pintura de Para-choque | <strong>Total:</strong> R$ 450,00</p>
+                    </div>
+                    <div class="acoes-icons">
+                        <span title="Editar" onclick="alert('Editar registro...')">📝</span>
+                        <span title="Excluir" onclick="alert('Excluir registro...')">🗑️</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function limparConsulta() {
+            document.getElementById('inputBusca').value = '';
+            document.getElementById('containerResultados').innerHTML = '<p style="text-align: center; color: #888;">Nenhum resultado para exibir.</p>';
+        }
+
+        // Lógica de Ordem de Serviço
+        function abrirOS() {
+            document.getElementById('numOS').innerText = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('dataOS').valueAsDate = new Date();
+            abrirModal('modalOS');
+            if(document.querySelector('#tabelaItens tbody').children.length === 0) adicionarLinhaOS();
+        }
+
+        function adicionarLinhaOS() {
+            const row = document.querySelector('#tabelaItens tbody').insertRow();
+            row.innerHTML = `
+                <td><input type="text"></td>
+                <td><input type="number" class="q" value="1" oninput="calcOS(this)"></td>
+                <td><input type="text"></td>
+                <td><input type="number" class="u" step="0.01" oninput="calcOS(this)"></td>
+                <td><input type="text" class="t" readonly value="0.00"></td>
+                <td><button class="btn-danger" style="padding: 5px 10px" onclick="this.parentElement.parentElement.remove(); calcTotalGeral();">X</button></td>
+            `;
+        }
+
+        function calcOS(el) {
+            const tr = el.closest('tr');
+            const q = tr.querySelector('.q').value || 0;
+            const u = tr.querySelector('.u').value || 0;
+            tr.querySelector('.t').value = (q * u).toFixed(2);
+            calcTotalGeral();
+        }
+
+        function calcTotalGeral() {
+            let total = 0;
+            document.querySelectorAll('.t').forEach(i => total += parseFloat(i.value));
+            document.getElementById('totalGeral').innerText = total.toFixed(2);
+        }
+
+        function buscarClienteOS() {
+            const cpf = document.getElementById('osCpf').value;
+            if(cpf === "123") { // Exemplo de busca
+                document.getElementById('osNome').value = "João da Silva";
+                document.getElementById('osTel').value = "(16) 99999-8888";
+            }
+        }
+
+        function limparOS() {
+            document.querySelector('#tabelaItens tbody').innerHTML = '';
+            calcTotalGeral();
+            adicionarLinhaOS();
+        }
+    </script>
+</body>
+</html>
