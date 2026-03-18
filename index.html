@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dani Moto CarRP - Sistema V3</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6; --text-color: #0e141e; --primary: #2086c2;
+            --secondary: #b9e5f5; --header-bg: #ffffff; --card-bg: #ffffff;
+            --shadow: rgba(14, 20, 30, 0.15); --border: #ccc;
+        }
+
+        .dark-mode {
+            --bg-color: #0e141e; --text-color: #f4f7f6; --primary: #2086c2;
+            --secondary: #b9e5f5; --header-bg: #1a2436; --card-bg: #1a2436;
+            --shadow: rgba(0, 0, 0, 0.5); --border: #334155;
+        }
+
+        .dark-mode .btn-primary { color: #0e141e !important; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); transition: 0.3s; padding-top: 80px; }
+
+        /* HEADER & MENU HAMBURGER */
+        header {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            background-color: var(--header-bg); display: flex; justify-content: space-between;
+            align-items: center; padding: 0 5%; box-shadow: 0 4px 15px var(--shadow); z-index: 1000;
+        }
+        .logo img { height: 50px; }
+
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-color); font-weight: bold; cursor: pointer; }
+        
+        .hamburger { display: none; font-size: 28px; cursor: pointer; background: none; border: none; color: var(--text-color); }
+
+        /* MODAIS */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg); padding: 20px; border-radius: 12px;
+            width: 95%; max-width: 850px; max-height: 90vh; overflow-y: auto;
+            position: relative;
+        }
+
+        /* CORREÇÃO RADIO BUTTONS */
+        input[type="radio"] { 
+            width: 18px !important; 
+            height: 18px !important; 
+            vertical-align: middle; 
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        label { cursor: pointer; margin-right: 15px; font-weight: 500; }
+
+        /* INPUTS GERAIS */
+        input:not([type="radio"]), select { 
+            width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); 
+            border-radius: 8px; background: var(--bg-color); color: var(--text-color); 
+        }
+
+        .btn-primary { background: var(--primary); color: #fff; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-danger { background: #e74c3c; color: #fff; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; }
+
+        /* TABELAS RESPONSIVAS (Mobile) */
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        th { background: var(--primary); color: white; }
+
+        /* MOBILE DESIGN */
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .nav-links {
+                display: none; flex-direction: column; position: absolute; top: 70px; left: 0;
+                width: 100%; background: var(--header-bg); padding: 20px; box-shadow: 0 10px 20px var(--shadow);
+            }
+            .nav-links.active { display: flex; }
+            
+            /* Tabela da O.S. vira lista no celular */
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { border: 1px solid var(--border); margin-bottom: 10px; border-radius: 8px; padding: 5px; }
+            td { border: none; position: relative; padding-left: 50%; }
+            td:before { 
+                position: absolute; left: 10px; width: 45%; padding-right: 10px; 
+                white-space: nowrap; font-weight: bold; color: var(--primary);
+                content: attr(data-label);
+            }
+            
+            .os-grid-topo { grid-template-columns: 1fr !important; }
+        }
+
+        .os-grid-topo { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .total-geral { text-align: right; font-size: 1.4em; font-weight: bold; color: var(--primary); padding: 15px 0; }
+        .tab-container { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 15px; }
+        .tab { padding: 10px 15px; cursor: pointer; font-weight: bold; }
+        .tab.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhrN1KBe8sQKe7h8bnxC3-36ZaDu228yqknNmU2nL2pA19bg9ycjgXAciifU5Q8DGrkXE8EsD1hz7I0aIiWx23oAFR0w2m36nOsexMYdjITo0T8dPg9-jsJdpWnLzodSgOo_OmwE-lVNeYTde4g21o8uD203-23_mwYGgEGCMBdTffQF8yaxXcPvDxnu94">
+        </div>
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+        <nav class="nav-links" id="menu">
+            <a onclick="fecharModais(); toggleMenu()">Home</a>
+            <a onclick="abrirOS(); toggleMenu()">O.S</a>
+            <a onclick="abrirModal('modalCadastro'); toggleMenu()">Cadastro</a>
+            <a onclick="abrirModal('modalConsulta'); toggleMenu()">Consultar</a>
+            <button class="theme-btn" style="font-weight: bold; cursor: pointer; border: none; background: none; color: var(--text-color);" onclick="toggleTheme()">🌓 Tema</button>
+        </nav>
+    </header>
+
+    <main style="text-align: center; padding: 40px 10px;">
+        <div style="background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px var(--shadow); max-width: 500px; margin: auto;">
+            <h1 style="color: var(--primary);">Dani Moto CarRP</h1>
+            <p>📱 (16) 99402-9362</p>
+            <p>📍 Orestes Lopes de Camargo</p>
+            <button class="btn-primary" style="margin-top: 20px; width: 100%;" onclick="abrirOS()">Acessar Sistema</button>
+        </div>
+    </main>
+
+    <div id="modalCadastro" class="modal">
+        <div class="modal-content">
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab(event, 'tabVeiculo')">Veículos</div>
+                <div class="tab" onclick="switchTab(event, 'tabCliente')">Clientes</div>
+            </div>
+            <div id="tabVeiculo" style="display: block;" class="tab-body">
+                <input type="radio" name="vT" id="vC" checked> <label for="vC">Carro</label>
+                <input type="radio" name="vT" id="vM"> <label for="vM">Moto</label>
+                <input type="text" placeholder="Placa">
+                <input type="text" placeholder="Modelo">
+                <input type="text" placeholder="CPF Proprietário">
+                <button class="btn-primary" style="width: 100%;">Salvar</button>
+            </div>
+            <div id="tabCliente" style="display: none;" class="tab-body">
+                <input type="text" placeholder="Nome / Razão Social">
+                <input type="text" placeholder="CPF">
+                <input type="text" placeholder="Telefone">
+                <button class="btn-primary" style="width: 100%;">Salvar</button>
+            </div>
+            <button class="btn-danger" style="margin-top: 15px; width: 100%;" onclick="fecharModais()">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalConsulta" class="modal">
+        <div class="modal-content">
+            <h3>Consultar</h3>
+            <div style="margin: 10px 0;">
+                <input type="radio" name="b" id="bP" checked> <label for="bP">Placa</label>
+                <input type="radio" name="b" id="bC"> <label for="bC">CPF</label>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="iB" placeholder="Buscar...">
+                <button class="btn-primary" onclick="alert('Buscando...')">Ir</button>
+            </div>
+            <div id="res" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 10px;">
+                <p style="font-size: 14px; color: #888;">Resultados aparecerão aqui.</p>
+            </div>
+            <button class="btn-danger" style="margin-top: 15px; width: 100%;" onclick="fecharModais()">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalOS" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">Nova O.S.</h2>
+            <div class="os-grid-topo">
+                <div><strong>Nº:</strong> <span id="nOS">0000</span></div>
+                <div><strong>Data:</strong> <input type="date" id="dOS" style="padding: 5px;"></div>
+                <div>
+                    <input type="radio" name="tO" id="tOC" checked> <label for="tOC">Carro</label>
+                    <input type="radio" name="tO" id="tOM"> <label for="tOM">Moto</label>
+                </div>
+            </div>
+            <div class="os-grid-topo">
+                <input type="text" id="osC" placeholder="CPF Cliente" onblur="buscarC()">
+                <input type="text" id="osN" placeholder="Nome" readonly>
+                <input type="text" id="osT" placeholder="Tel" readonly>
+            </div>
+
+            <table id="tbOS">
+                <thead>
+                    <tr>
+                        <th>PEÇAS</th><th>QUANT.</th><th>DESCRIÇÃO</th><th>VALOR UNIT.</th><th>VALOR</th><th>X</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button class="btn-primary" onclick="addL()">+ Linha</button>
+            <div class="total-geral">TOTAL: R$ <span id="tg">0.00</span></div>
+            
+            <button class="btn-primary" style="width: 100%; margin-bottom: 10px;">Finalizar e Salvar</button>
+            <button class="btn-danger" style="width: 100%;" onclick="fecharModais()">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() { document.getElementById('menu').classList.toggle('active'); }
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+        function abrirModal(id) { fecharModais(); document.getElementById(id).style.display = 'flex'; }
+        function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+        function switchTab(e, id) {
+            document.querySelectorAll('.tab-body').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).style.display = 'block';
+            e.currentTarget.classList.add('active');
+        }
+
+        function abrirOS() {
+            document.getElementById('nOS').innerText = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('dOS').valueAsDate = new Date();
+            abrirModal('modalOS');
+            if(document.querySelector('#tbOS tbody').children.length === 0) addL();
+        }
+
+        function addL() {
+            const row = document.querySelector('#tbOS tbody').insertRow();
+            const cols = ['PEÇAS', 'QUANT.', 'DESCRIÇÃO', 'VALOR UNIT.', 'VALOR', 'AÇÃO'];
+            row.innerHTML = `
+                <td data-label="PEÇAS"><input type="text"></td>
+                <td data-label="QUANT."><input type="number" class="q" value="1" oninput="calc(this)"></td>
+                <td data-label="DESCRIÇÃO"><input type="text"></td>
+                <td data-label="VALOR UNIT."><input type="number" class="u" step="0.01" oninput="calc(this)"></td>
+                <td data-label="VALOR"><input type="text" class="t" readonly value="0.00"></td>
+                <td data-label="AÇÃO"><button class="btn-danger" onclick="this.parentElement.parentElement.remove(); calcG();">X</button></td>
+            `;
+        }
+
+        function calc(el) {
+            const tr = el.closest('tr');
+            const q = tr.querySelector('.q').value || 0;
+            const u = tr.querySelector('.u').value || 0;
+            tr.querySelector('.t').value = (q * u).toFixed(2);
+            calcG();
+        }
+
+        function calcG() {
+            let total = 0;
+            document.querySelectorAll('.t').forEach(i => total += parseFloat(i.value || 0));
+            document.getElementById('tg').innerText = total.toFixed(2);
+        }
+
+        function buscarC() {
+            if(document.getElementById('osC').value === "123") {
+                document.getElementById('osN').value = "João da Silva";
+                document.getElementById('osT').value = "(16) 99999-0000";
+            }
+        }
+    </script>
+</body>
+</html>
