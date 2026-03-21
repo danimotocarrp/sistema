@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Dani Moto CarRP</title>
+  <style>
+
+    /* VARIÁVEIS DE CORES E TEMA (Elegante e Profundo) */
+    :root {
+      --bg-color: #0e141e;
+      --text-color: #b9e5f5;
+      --primary: #2086c2;
+      --surface: #172233;
+      --shadow: rgba(0, 0, 0, 0.7);
+    }
+
+    [data-theme="light"] {
+      --bg-color: #f4f7f6;
+      --text-color: #0e141e;
+      --primary: #2086c2;
+      --surface: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.15);
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background 0.3s, color 0.3s; }
+    
+    body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
+
+    /* CABEÇALHO */
+    header {
+      position: fixed; top: 0; width: 100%; height: 70px;
+      background-color: var(--surface);
+      box-shadow: 0 4px 15px var(--shadow);
+      display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 1000;
+    }
+    
+    .logo-img { height: 50px; }
+    
+    .menu-desktop button {
+      background: none; border: none; color: var(--text-color);
+      font-weight: bold; cursor: pointer; padding: 10px; margin-left: 10px;
+    }
+    
+    .menu-desktop button:hover { color: var(--primary); }
+
+    .btn-tema { background: var(--primary); color: #fff; padding: 8px 15px; border-radius: 20px; border: none; cursor: pointer; box-shadow: 0 4px 10px var(--shadow); }
+
+    /* HOME PAGE (Corpo) */
+    main { margin-top: 100px; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px; }
+    h1 { color: var(--primary); text-shadow: 2px 2px 5px var(--shadow); }
+    .btn-acessar {
+      background-color: var(--primary); color: white; border: none; padding: 15px 40px;
+      font-size: 1.2rem; border-radius: 8px; cursor: pointer; margin-top: 30px;
+      box-shadow: 0 8px 20px var(--shadow); transition: transform 0.2s;
+    }
+    .btn-acessar:hover { transform: scale(1.05); }
+
+    /* POPUPS (Modais) */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8); z-index: 2000; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: var(--surface); width: 95%; max-width: 900px; max-height: 95vh; overflow-y: auto;
+      padding: 20px; border-radius: 12px; box-shadow: 0 15px 35px var(--shadow);
+    }
+    
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px;}
+    .fechar-modal { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+
+    /* CABEÇALHO O.S. (Baseado na imagem) */
+    .os-header-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: rgba(185, 229, 245, 0.05);
+      border-radius: 8px;
+    }
+    .os-header-logo-block { display: flex; align-items: center; gap: 15px; }
+    .os-header-logo { height: 70px; }
+    .os-header-title-block { text-align: right; }
+    .os-header-title-block h2 { margin: 0; color: var(--primary); font-size: 1.8rem; text-transform: uppercase;}
+    .os-header-contact { font-size: 0.8rem; margin-top: 5px; color: var(--text-color); opacity: 0.8;}
+
+    /* ESTILOS DE SEÇÃO DA O.S. */
+    .os-section {
+      margin-bottom: 25px;
+      border: 1px solid rgba(185, 229, 245, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px var(--shadow);
+    }
+    .os-section-header {
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--primary);
+      padding: 10px 15px;
+      color: var(--primary);
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+    .os-section-body {
+      padding: 15px;
+      background-color: rgba(185, 229, 245, 0.02);
+    }
+
+    /* FORMULÁRIOS & CAMPOS (Layout Mobile First) */
+    .form-group { margin-bottom: 15px; text-align: left; }
+    label { display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--primary); font-weight: bold; }
+    input, select, textarea {
+      width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(185, 229, 245, 0.2);
+      background: var(--bg-color); color: var(--text-color); outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 5px var(--primary); }
+    textarea { resize: vertical; height: 100px; }
+    
+    /* Layout de Grade Responsivo para campos */
+    .field-row { display: flex; flex-wrap: wrap; gap: 15px; }
+    .field-3 { flex: 1 1 200px; } /* Campos largos */
+    .field-2 { flex: 1 1 150px; } /* Campos médios */
+    .field-1 { flex: 1 1 100px; } /* Campos curtos */
+
+    /* TABELA DE ITENS */
+    .table-responsive { width: 100%; overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(185, 229, 245, 0.1); }
+    th { color: var(--primary); font-size: 0.8rem; text-transform: uppercase;}
+    .btn-add-linha, .btn-salvar { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: bold; font-size: 1.1rem;}
+    .btn-remover { background: #ff4757; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; font-size: 0.8rem;}
+
+    /* RESUMO FINANCEIRO */
+    .os-summary-row { display: flex; justify-content: space-between; padding: 8px 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(185, 229, 245, 0.05); }
+    .os-summary-label { color: var(--primary); font-weight: bold; }
+    .os-summary-value { font-family: 'Courier New', Courier, monospace; font-weight: bold;}
+    .os-summary-row.total { font-size: 1.2rem; background: rgba(185, 229, 245, 0.05); border-top: 1px solid var(--primary);}
+    .os-discount-input { width: 100px; padding: 2px 5px; text-align: right; background: transparent; border: 1px solid var(--primary); }
+
+    /* RODAPÉ E ASSINATURAS (Para Impressão/Visualização) */
+    .os-signatures-wrapper {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+    .os-signature-block { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .os-signature-line { width: 100%; border-top: 1px solid var(--text-color); margin-bottom: 5px; }
+
+    /* ESTILOS DE CARDS PARA CONSULTA (Otimizados) */
+    .card-resultado {
+      background: var(--surface);
+      border-left: 5px solid var(--primary);
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px var(--shadow); /* Profundidade pedida */
+      text-align: left;
+      animation: fadeIn 0.5s ease;
+    }
+    .card-resultado h4 { margin: 0 0 10px 0; color: var(--primary); }
+    .card-resultado p { margin: 5px 0; font-size: 0.9rem; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  </style>
+</head>
+<body>
+
+  
+<header>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhrN1KBe8sQKe7h8bnxC3-36ZaDu228yqknNmU2nL2pA19bg9ycjgXAciifU5Q8DGrkXE8EsD1hz7I0aIiWx23oAFR0w2m36nOsexMYdjITo0T8dPg9-jsJdpWnLzodSgOo_OmwE-lVNeYTde4g21o8uD203-23_mwYGgEGCMBdTffQF8yaxXcPvDxnu94" alt="Logo Dani Moto CarRP" class="logo-img">
+    <nav class="menu-desktop">
+      <button onclick="fecharTodosModais()">Home</button>
+      <button onclick="abrirModal('modal-os')">Ordem de Serviço</button>
+      <button onclick="abrirModal('modal-consultar')">Consultar</button>
+      <button onclick="abrirModal('modal-cadastro')">Cadastro</button>
+      <button class="btn-tema" onclick="alternarTema()">🌓 Tema</button>
+    </nav>
+  </header>
+
+  
+<main>
+    <h1>Dani Moto CarRP</h1>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhrN1KBe8sQKe7h8bnxC3-36ZaDu228yqknNmU2nL2pA19bg9ycjgXAciifU5Q8DGrkXE8EsD1hz7I0aIiWx23oAFR0w2m36nOsexMYdjITo0T8dPg9-jsJdpWnLzodSgOo_OmwE-lVNeYTde4g21o8uD203-23_mwYGgEGCMBdTffQF8yaxXcPvDxnu94" alt="Logo" style="width: 200px; border-radius: 50%; box-shadow: 0 10px 30px var(--shadow);">
+    <button class="btn-acessar" onclick="abrirModal('modal-os')">Acessar Sistema > O.S.</button>
+  </main>
+
+  
+<div id="modal-os" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="display:none">Ordem de Serviço</h2> <button class="fechar-modal" onclick="fecharTodosModais()">X Fechar</button>
+      </div>
+      
+      <div class="os-header-wrapper">
+        <div class="os-header-logo-block">
+          <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhrN1KBe8sQKe7h8bnxC3-36ZaDu228yqknNmU2nL2pA19bg9ycjgXAciifU5Q8DGrkXE8EsD1hz7I0aIiWx23oAFR0w2m36nOsexMYdjITo0T8dPg9-jsJdpWnLzodSgOo_OmwE-lVNeYTde4g21o8uD203-23_mwYGgEGCMBdTffQF8yaxXcPvDxnu94" alt="Logo" class="os-header-logo">
+        </div>
+        <div class="os-header-title-block">
+          <h2>ORDEM DE SERVIÇO</h2>
+          <div class="os-header-contact">
+            📞 (16) 99402-9362<br>
+            📍 Vicente Pereira Britto, 69<br>
+            Ribeirão Preto | Jd. Orestes Lopes de Camargo
+          </div>
+        </div>
+      </div>
+
+      <div class="os-section">
+        <div class="os-section-header">DADOS DA ORDEM DE SERVIÇO</div>
+        <div class="os-section-body">
+          <div class="field-row">
+            <div class="form-group field-2"><label>OS N°:</label><input type="text" id="os-num" readonly style="font-weight:bold; color: var(--primary);"></div>
+            <div class="form-group field-2"><label>Data:</label><input type="text" id="os-data" readonly></div>
+            <div class="form-group field-2">
+              <label>Status:</label>
+              <select id="os-status"><option>Aberto</option><option>Em andamento</option><option>Fechado</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="os-section">
+        <div class="os-section-header">DADOS DO CLIENTE</div>
+        <div class="os-section-body">
+          <div class="field-row">
+            <div class="form-group field-3"><label>CPF (Digite para buscar)</label><input type="text" id="os-cpf" onkeyup="mascaraCPF(this); buscarCliente(this.value)" maxlength="14" placeholder="000.000.000-00"></div>
+            <div class="form-group field-3"><label>Nome</label><input type="text" id="os-nome"></div>
+            <div class="form-group field-2"><label>Telefone</label><input type="text" id="os-telefone" onkeyup="mascaraTel(this)" maxlength="15"></div>
+          </div>
+          <div class="form-group"><label>Endereço Completo</label><input type="text" id="os-endereco"></div>
+          <input type="hidden" id="os-id-cliente"> </div>
+      </div>
+
+      <div class="os-section">
+        <div class="os-section-header">DADOS DO VEÍCULO</div>
+        <div class="os-section-body">
+          <div class="field-row">
+            <div class="form-group field-2"><label>Placa</label><input type="text" id="os-placa" style="text-transform: uppercase;" maxlength="8"></div>
+            <div class="form-group field-3"><label>Marca / Modelo</label><input type="text" id="os-modelo"></div>
+            <div class="form-group field-1"><label>Ano</label><input type="number" id="os-ano"></div>
+            <div class="form-group field-2"><label>Cor</label><input type="text" id="os-cor"></div>
+          </div>
+          <div class="form-group"><label>Chassi</label><input type="text" id="os-chassi"></div> <input type="hidden" id="os-id-veiculo"> </div>
+      </div>
+
+      <div class="os-section">
+        <div class="os-section-header">DETALHAMENTO DE SERVIÇOS E PEÇAS</div>
+        <div class="os-section-body">
+          <div class="table-responsive">
+            <table id="tabela-itens">
+              <thead><tr><th style="width:40px;">ITEM</th><th style="width:120px;">TIPO</th><th>DESCRIÇÃO</th><th style="width:70px;">QTD</th><th style="width:120px;">V. UNIT. (R$)</th><th style="width:120px;">TOTAL (R$)</th><th style="width:60px;">AÇÃO</th></tr></thead>
+              <tbody id="corpo-tabela-itens">
+                </tbody>
+            </table>
+          </div>
+          <button class="btn-add-linha" onclick="adicionarLinhaOS()">+ Adicionar Item (Serviço ou Peça)</button>
+        </div>
+      </div>
+
+      <div class="os-section">
+        <div class="os-section-header">RESUMO FINANCEIRO</div>
+        <div class="os-section-body" style="padding: 0;">
+          <div class="os-summary-row"><span class="os-summary-label">SUBTOTAL SERVIÇOS:</span>R$ <span id="os-subtotal-servicos" class="os-summary-value">0,00</span></div>
+          <!-- <div class="os-summary-row"><span class="os-summary-label">SUBTOTAL MATERIAIS:</span>R$ <span id="os-subtotal-materiais" class="os-summary-value">0,00</span></div> -->
+          <div class="os-summary-row"><span class="os-summary-label">SUBTOTAL GERAL:</span>R$ <span id="os-subtotal-geral" class="os-summary-value">0,00</span></div>
+          <div class="os-summary-row"><span class="os-summary-label">DESCONTO:</span>R$ <input type="number" id="os-desconto" value="0.00" step="0.01" class="os-discount-input" onchange="calcularSubtotalGeral()"></div>
+          <div class="os-summary-row total"><span class="os-summary-label">TOTAL A PAGAR:</span>R$ <span id="os-total-pagar" class="os-summary-value">0,00</span></div>
+        </div>
+      </div>
+
+      <div class="os-section">
+        <div class="os-section-header">OBSERVAÇÕES</div>
+        <div class="os-section-body">
+          <div class="form-group">
+            <label>Informações Adicionais:</label>
+            <textarea id="os-observacoes" placeholder="Digite observações sobre o serviço ou estado do veículo..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="os-signatures-wrapper">
+        <div class="os-signature-block">
+          <div class="os-signature-line"></div>
+          <div>Assinatura do Cliente<br><span style="opacity:0.7; font-size:0.7rem;">Para aprovação</span></div>
+        </div>
+        <div class="os-signature-block">
+          <div class="os-signature-line"></div>
+          <div>Assinatura da Oficina<br><span style="opacity:0.7; font-size:0.7rem;">Dani Moto CarRP</span></div>
+        </div>
+      </div>
+
+      <button id="btn-salvar-os" class="btn-salvar" style="margin-top: 30px;" onclick="salvarTudoOS()">💾 Salvar O.S. Completa</button>
+    </div>
+  </div>
+
+  
+<div id="modal-consultar" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Consultar Sistema</h2>
+        <button class="fechar-modal" onclick="fecharTodosModais()">X Fechar</button>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="btn-tema" onclick="mostrarAba('cons-cliente', 'cons-os')" style="flex: 1;">👤 Clientes</button>
+        <button class="btn-tema" onclick="mostrarAba('cons-os', 'cons-cliente')" style="flex: 1; background: var(--surface); color: var(--primary); border: 1px solid var(--primary);">📄 Ordens de Serviço</button>
+      </div>
+
+      <div id="cons-cliente">
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+          <div class="form-group" style="flex: 1;">
+            <label>Pesquisar por:</label>
+            <select id="filtro-cliente"><option>Nome</option><option>CPF</option></select>
+          </div>
+          <div class="form-group" style="flex: 2;">
+            <label>Digite a busca:</label>
+            <input type="text" id="busca-cliente">
+          </div>
+        </div>
+        <button class="btn-salvar" onclick="pesquisarCliente()">🔍 Pesquisar Cliente</button>
+        <div id="resultado-cliente" style="margin-top: 20px; border-top: 1px solid var(--primary); padding-top: 10px;">
+          </div>
+      </div>
+
+      <div id="cons-os" style="display: none;">
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+          <div class="form-group" style="flex: 1;">
+            <label>Pesquisar por:</label>
+            <select id="filtro-os"><option>Nº da O.S</option><option>CPF</option></select>
+          </div>
+          <div class="form-group" style="flex: 2;">
+            <label>Digite a busca:</label>
+            <input type="text" id="busca-os">
+          </div>
+        </div>
+        <button class="btn-salvar" onclick="pesquisarOS()">🔍 Pesquisar O.S.</button>
+        <div id="resultado-os" style="margin-top: 20px; border-top: 1px solid var(--primary); padding-top: 10px;">
+          </div>
+      </div>
+    </div>
+  </div>
+
+  
+<div id="modal-cadastro" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Cadastros</h2>
+        <button class="fechar-modal" onclick="fecharTodosModais()">X Fechar</button>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="btn-tema" onclick="mostrarAba('cad-cliente', 'cad-veiculo')" style="flex: 1;">👤 Cliente</button>
+        <button class="btn-tema" onclick="mostrarAba('cad-veiculo', 'cad-cliente')" style="flex: 1; background: var(--surface); color: var(--primary); border: 1px solid var(--primary);">🚗/🏍️ Veículo</button>
+      </div>
+
+      <div id="cad-cliente">
+        <div class="form-group"><label>Nome Completo</label><input type="text" id="cad-nome"></div>
+        <div class="form-group"><label>CPF</label><input type="text" id="cad-cpf" onkeyup="mascaraCPF(this)" maxlength="14"></div>
+        <div class="form-group"><label>Telefone</label><input type="text" id="cad-telefone" onkeyup="mascaraTel(this)" maxlength="15"></div>
+        <div class="form-group"><label>Endereço</label><input type="text" id="cad-endereco"></div>
+        <button class="btn-salvar" onclick="enviarCadastroCliente()">💾 Salvar Cliente</button>
+      </div>
+
+      <div id="cad-veiculo" style="display: none;">
+        <div class="form-group">
+          <label>Tipo de Veículo</label>
+          <select id="cad-tipo-veiculo"><option>Selecione...</option><option>Carro</option><option>Moto</option></select>
+        </div>
+        <div class="form-group"><label>Placa</label><input type="text" id="cad-placa" style="text-transform: uppercase;" maxlength="8"></div>
+        <div class="form-group"><label>Marca / Modelo</label><input type="text" id="cad-modelo"></div>
+        <div class="form-group"><label>Ano</label><input type="number" id="cad-ano"></div>
+        <button class="btn-salvar" onclick="enviarCadastroVeiculo()">💾 Salvar Veículo</button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+<script>
+    // URL do seu App Script (fornecida por você)
+    const API_URL = "https://script.google.com/macros/s/AKfycbzxrNfR9--5tPe4DfuvwSiW8u9D7GSI5DHRAX9U5wIRrX48bErjR65Ppo_7YpFlHhHm/exec";
+
+    async function chamarAPI(acao, parametros) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          mode: 'no-cors', // Envia os dados, mas o Google não permite ler a resposta "no-cors" facilmente
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: acao, parameters: parametros })
+        });
+        // Como 'no-cors' não permite ler o JSON de volta, assumimos sucesso se não der erro de rede
+        return { status: "enviado" }; 
+      } catch (error) {
+        console.error("Erro na conexão:", error);
+        return null;
+      }
+    }
+
+    // 1. TEMA DARK/LIGHT
+    function alternarTema() {
+      const temaAtual = document.body.getAttribute('data-theme');
+      if (temaAtual === 'light') {
+        document.body.removeAttribute('data-theme');
+      } else {
+        document.body.setAttribute('data-theme', 'light');
+      }
+    }
+
+    // 2. CONTROLE DE MODAIS
+    function abrirModal(idModal) {
+      fecharTodosModais();
+      document.getElementById(idModal).style.display = 'flex';
+      if(idModal === 'modal-os') preencherDadosIniciaisOS();
+    }
+    
+    function fecharTodosModais() {
+      const modais = document.querySelectorAll('.modal-overlay');
+      modais.forEach(m => m.style.display = 'none');
+    }
+
+    // 3. DADOS INICIAIS O.S.
+    function preencherDadosIniciaisOS() {
+      if(!document.getElementById('os-num').value) {
+        document.getElementById('os-num').value = Math.floor(Math.random() * 1000000);
+        document.getElementById('os-data').value = new Date().toLocaleDateString('pt-BR');
+        adicionarLinhaOS();
+      }
+    }
+
+    // 4. MÁSCARAS
+    function mascaraCPF(input) {
+      let v = input.value.replace(/\D/g, "");
+      v = v.replace(/(\d{3})(\d)/, "$1.$2");
+      v = v.replace(/(\d{3})(\d)/, "$1.$2");
+      v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      input.value = v;
+    }
+
+    function mascaraTel(input) {
+      let v = input.value.replace(/\D/g, "");
+      v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+      v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+      input.value = v;
+    }
+
+    function mostrarAba(abaMostrar, abaEsconder) {
+      document.getElementById(abaMostrar).style.display = 'block';
+      document.getElementById(abaEsconder).style.display = 'none';
+    }
+
+    // --- DINÂMICA DA TABELA ---
+    function adicionarLinhaOS() {
+      const tbody = document.getElementById('corpo-tabela-itens');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="item-numero" style="font-weight:bold; color:var(--primary); text-align:center;"></td>
+        <td><select class="tipo" onchange="calcularSubtotalGeral()"><option>Serviço</option><option>Peça/Material</option></select></td>
+        <td><input type="text" class="descricao" placeholder="Ex: Mão de Obra"></td>
+        <td><input type="number" class="qtd" value="1" min="1" onchange="calcularTotalLinha(this)"></td>
+        <td><input type="number" class="vunit" value="0.00" step="0.01" onchange="calcularTotalLinha(this)"></td>
+        <td><input type="text" class="vtotal" value="0.00" readonly style="background: transparent; border:none; font-family:Courier, monospace; font-weight:bold;"></td>
+        <td><button class="btn-remover" onclick="removerLinha(this)">🗑</button></td>
+      `;
+      tbody.appendChild(tr);
+      numerarItens();
+    }
+
+    function calcularTotalLinha(elemento) {
+      const linha = elemento.closest('tr');
+      const qtd = parseFloat(linha.querySelector('.qtd').value) || 0;
+      const vUnit = parseFloat(linha.querySelector('.vunit').value) || 0;
+      linha.querySelector('.vtotal').value = (qtd * vUnit).toFixed(2);
+      calcularSubtotalGeral();
+    }
+
+    function removerLinha(botao) {
+      botao.closest('tr').remove();
+      numerarItens();
+      calcularSubtotalGeral();
+    }
+
+    function numerarItens() {
+      document.querySelectorAll('#corpo-tabela-itens tr').forEach((tr, i) => {
+        tr.querySelector('.item-numero').innerText = i + 1;
+      });
+    }
+
+    function calcularSubtotalGeral() {
+      let serv = 0, mat = 0;
+      document.querySelectorAll('#corpo-tabela-itens tr').forEach(tr => {
+        const t = parseFloat(tr.querySelector('.vtotal').value) || 0;
+        tr.querySelector('.tipo').value === "Serviço" ? serv += t : mat += t;
+      });
+      document.getElementById('os-subtotal-servicos').innerText = serv.toFixed(2).replace('.', ',');
+      document.getElementById('os-subtotal-materiais').innerText = mat.toFixed(2).replace('.', ',');
+      const sub = serv + mat;
+      document.getElementById('os-subtotal-geral').innerText = sub.toFixed(2).replace('.', ',');
+      const desc = parseFloat(document.getElementById('os-desconto').value) || 0;
+      document.getElementById('os-total-pagar').innerText = (sub - desc).toFixed(2).replace('.', ',');
+    }
+
+    // --- FUNÇÕES DE COMUNICAÇÃO (ATUALIZADAS PARA A URL) ---
+
+    async function salvarTudoOS() {
+      const btn = document.getElementById('btn-salvar-os');
+      const dadosOS = {
+        num: document.getElementById('os-num').value,
+        data: document.getElementById('os-data').value,
+        cliente: document.getElementById('os-nome').value,
+        itens: [] 
+      };
+
+      if (!dadosOS.cliente) return alert("Preencha o nome do cliente.");
+
+      btn.innerText = "⏳ Enviando para nuvem...";
+      btn.disabled = true;
+
+      const sucesso = await chamarAPI("salvarOSCompleta", dadosOS);
+      
+      if(sucesso) {
+        alert("O.S salva com sucesso!");
+        fecharTodosModais();
+      }
+      
+      google.script.run.withSuccessHandler(function(idOSGerado) {
+      alert(`O.S. ${dadosOS.num} salva com sucesso!`);
+      
+      // Limpa campos da OS para a próxima
+      document.getElementById('os-cpf').value = '';
+      document.getElementById('os-nome').value = '';
+      document.getElementById('os-telefone').value = '';
+      document.getElementById('os-endereco').value = '';
+      document.getElementById('os-placa').value = '';
+      document.getElementById('os-modelo').value = '';
+      document.getElementById('os-ano').value = '';
+      document.getElementById('os-cor').value = '';
+      document.getElementById('os-chassi').value = '';
+      document.getElementById('os-observacoes').value = '';
+      document.getElementById('os-desconto').value = '0.00';
+
+      // Limpa a tabela de itens (remove todas as linhas)
+      document.getElementById('corpo-tabela-itens').innerHTML = '';
+
+      // Reseta os totais visuais
+        calcularSubtotalGeral();
+      
+      // Volta o botão ao normal
+        btn.innerText = "💾 Salvar O.S. Completa";
+        btn.style.opacity = "1";
+        btn.disabled = false;
+      fecharTodosModais();
+    }).salvarOSCompleta(dadosOS);
+    }
+
+
+
+
+
+
+
+
+
+
+    // ... (mantenha sua API_URL e função chamarAPI anterior)
+
+    function enviarCadastroCliente() {
+      // 1. Captura os elementos do DOM
+      const campoNome = document.getElementById('cad-nome');
+      const campoCpf = document.getElementById('cad-cpf');
+      const campoTel = document.getElementById('cad-telefone');
+      const campoEnd = document.getElementById('cad-endereco');
+
+      // 2. Monta o objeto com os dados
+      const dados = {
+        nome: campoNome.value,
+        cpf: campoCpf.value,
+        telefone: campoTel ? campoTel.value : "",
+        endereco: campoEnd ? campoEnd.value : ""
+      };
+
+      // Validação simples
+      if (!dados.nome || !dados.cpf) {
+        alert("Nome e CPF são obrigatórios!");
+        return;
+      }
+
+      // Feedback visual no botão
+      const btn = document.querySelector('#modal-cadastro .btn-salvar') || document.querySelector('.btn-salvar');
+      const textoOriginal = btn.innerText;
+      btn.innerText = "⏳ Gravando...";
+      btn.disabled = true;
+
+      // 3. Chama o Google Script
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          if (resposta.status === "sucesso") {
+            alert(resposta.mensagem);
+            
+            // --- LIMPEZA DOS CAMPOS ---
+            campoNome.value = "";
+            campoCpf.value = "";
+            if (campoTel) campoTel.value = "";
+            if (campoEnd) campoEnd.value = "";
+            
+            fecharTodosModais(); // Fecha o popup
+          } else {
+            alert("Erro no servidor: " + resposta.mensagem);
+          }
+          
+          // Restaura o botão
+          btn.innerText = textoOriginal;
+          btn.disabled = false;
+        })
+        .withFailureHandler(function(erro) {
+          alert("Erro de conexão: " + erro);
+          btn.innerText = textoOriginal;
+          btn.disabled = false;
+        })
+        .salvarNovoCliente(dados);
+    }
+
+
+
+
+
+
+    async function salvarTudoOS() {
+      const btn = document.getElementById('btn-salvar-os');
+      const dadosOS = {
+        status: document.getElementById('os-status').value,
+        obs: document.getElementById('os-obs').value, // Captura o campo Informações Adicionais
+        cliente: {
+          id: document.getElementById('os-id-cliente').value,
+          nome: document.getElementById('os-nome').value,
+          cpf: document.getElementById('os-cpf').value,
+          telefone: document.getElementById('os-telefone').value,
+          endereco: document.getElementById('os-endereco').value
+        },
+        veiculo: {
+          placa: document.getElementById('os-placa').value,
+          modelo: document.getElementById('os-modelo').value,
+          ano: document.getElementById('os-ano').value
+        },
+        resumo: {
+          subtotalGeral: document.getElementById('os-subtotal-geral').innerText.replace(',', '.'),
+          desconto: document.getElementById('os-desconto').value,
+          totalAPagar: document.getElementById('os-total-pagar').innerText.replace(',', '.')
+        },
+        itens: Array.from(document.querySelectorAll('#corpo-tabela-itens tr')).map(tr => ({
+          tipo: tr.querySelector('.tipo').value,
+          descricao: tr.querySelector('.descricao').value,
+          quantidade: tr.querySelector('.qtd').value,
+          valorUnit: tr.querySelector('.vunit').value,
+          valorTotal: tr.querySelector('.vtotal').value
+        }))
+      };
+
+      if(!dadosOS.cliente.nome || !dadosOS.veiculo.placa) return alert("Preencha Nome e Placa.");
+
+      btn.innerText = "⏳ Gravando...";
+      btn.disabled = true;
+
+      const resposta = await chamarAPI('salvarOSCompleta', dadosOS);
+      
+      if(resposta && !resposta.error) {
+        alert("Ordem de Serviço salva com sucesso!");
+        fecharTodosModais();
+      } else {
+        alert("Erro ao salvar. Tente novamente.");
+      }
+      
+      btn.innerText = "💾 Salvar O.S. Completa";
+      btn.disabled = false;
+    }
+  </script>
+
+
+
+
+
+
+<!--
+    async function enviarCadastroCliente() {
+      const dados = {
+        nome: document.getElementById('cad-nome').value,
+        cpf: document.getElementById('cad-cpf').value
+      };
+      if(!dados.nome) return alert("Nome é obrigatório.");
+      
+      await chamarAPI("salvarNovoCliente", dados);
+      alert("Solicitação de cadastro enviada.");
+    }
+
+    // Adicione chamadas similares para as outras funções (veículo, buscas, etc)
+  --> 
+
+
+
+
+
+
+<!--  
+<script>
+    // 1. TEMA DARK/LIGHT (Mantido)
+    function alternarTema() {
+      const temaAtual = document.body.getAttribute('data-theme');
+      if (temaAtual === 'light') {
+        document.body.removeAttribute('data-theme');
+      } else {
+        document.body.setAttribute('data-theme', 'light');
+      }
+    }
+
+    // 2. CONTROLE DE MODAIS (Popups) (Mantido)
+    function abrirModal(idModal) {
+      fecharTodosModais();
+      document.getElementById(idModal).style.display = 'flex';
+      
+      if(idModal === 'modal-os') {
+        preencherDadosIniciaisOS();
+      }
+    }
+    
+    function fecharTodosModais() {
+      const modais = document.querySelectorAll('.modal-overlay');
+      modais.forEach(m => m.style.display = 'none');
+    }
+
+    // 3. PREENCHIMENTO AUTOMÁTICO DA O.S. (Número e Data) (Mantido)
+    function preencherDadosIniciaisOS() {
+      if(!document.getElementById('os-num').value) { // Só preenche se estiver vazio
+        document.getElementById('os-num').value = Math.floor(Math.random() * 1000000); // Gera num randômico
+        document.getElementById('os-data').value = new Date().toLocaleDateString('pt-BR');
+        adicionarLinhaOS(); // Já adiciona uma linha vazia
+      }
+    }
+
+    // 4. MÁSCARAS (CPF e Telefone) (Mantido)
+    function mascaraCPF(input) {
+      let v = input.value.replace(/\D/g, "");
+      v = v.replace(/(\d{3})(\d)/, "$1.$2");
+      v = v.replace(/(\d{3})(\d)/, "$1.$2");
+      v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      input.value = v;
+    }
+
+    function mascaraTel(input) {
+      let v = input.value.replace(/\D/g, "");
+      v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+      v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+      input.value = v;
+    }
+
+    // Alternar entre as abas (Mantido)
+    function mostrarAba(abaMostrar, abaEsconder) {
+      document.getElementById(abaMostrar).style.display = 'block';
+      document.getElementById(abaEsconder).style.display = 'none';
+    }
+
+    // --- DINÂMICA DA TABELA DE ITENS DA O.S. (ATUALIZADO) ---
+    function adicionarLinhaOS() {
+      const tbody = document.getElementById('corpo-tabela-itens');
+      const tr = document.createElement('tr');
+      // Adicionado coluna ITEM e Coluna TIPO (dropdown)
+      tr.innerHTML = `
+        <td class="item-numero" style="font-weight:bold; color:var(--primary); text-align:center;"></td>
+        <td>
+          <select class="tipo" onchange="calcularSubtotalGeral()">
+            <option>Serviço</option>
+            <option>Peça/Material</option>
+          </select>
+        </td>
+        <td><input type="text" class="descricao" placeholder="Ex: Mão de Obra Funilaria ou Kit Verniz"></td>
+        <td><input type="number" class="qtd" value="1" min="1" onchange="calcularTotalLinha(this)"></td>
+        <td><input type="number" class="vunit" value="0.00" step="0.01" onchange="calcularTotalLinha(this)"></td>
+        <td><input type="text" class="vtotal" value="0.00" readonly style="background: transparent; border:none; font-family:Courier, monospace; font-weight:bold;"></td>
+        <td><button class="btn-remover" onclick="removerLinha(this)">🗑</button></td>
+      `;
+      tbody.appendChild(tr);
+      numerarItens();
+    }
+
+    function calcularTotalLinha(elemento) {
+      const linha = elemento.closest('tr');
+      const qtd = parseFloat(linha.querySelector('.qtd').value) || 0;
+      const vUnit = parseFloat(linha.querySelector('.vunit').value) || 0;
+      const total = qtd * vUnit;
+      linha.querySelector('.vtotal').value = total.toFixed(2);
+      calcularSubtotalGeral();
+    }
+
+    function removerLinha(botao) {
+      botao.closest('tr').remove();
+      numerarItens();
+      calcularSubtotalGeral();
+    }
+
+    // Função para numerar implicitamente a coluna ITEM
+    function numerarItens() {
+      const linhas = document.querySelectorAll('#corpo-tabela-itens tr');
+      linhas.forEach(function(tr, index) {
+        tr.querySelector('.item-numero').innerText = index + 1;
+      });
+    }
+
+    // NOVA FUNÇÃO DE CÁLCULO DE RESUMO FINANCEIRO (Baseado na imagem)
+    function calcularSubtotalGeral() {
+      let subtotalServicos = 0;
+      let subtotalMateriais = 0;
+      
+      const linhas = document.querySelectorAll('#corpo-tabela-itens tr');
+      
+      linhas.forEach(function(tr) {
+        const tipo = tr.querySelector('.tipo').value;
+        const totalLinha = parseFloat(tr.querySelector('.vtotal').value) || 0;
+        
+        if (tipo === "Serviço") {
+          subtotalServicos += totalLinha;
+        } else {
+          subtotalMateriais += totalLinha;
+        }
+      });
+      
+      // Atualiza os spans na tela
+      document.getElementById('os-subtotal-servicos').innerText = subtotalServicos.toFixed(2).replace('.', ',');
+      document.getElementById('os-subtotal-materiais').innerText = subtotalMateriais.toFixed(2).replace('.', ',');
+      
+      const subtotalGeral = subtotalServicos + subtotalMateriais;
+      document.getElementById('os-subtotal-geral').innerText = subtotalGeral.toFixed(2).replace('.', ',');
+      
+      const desconto = parseFloat(document.getElementById('os-desconto').value) || 0;
+      const totalAPagar = subtotalGeral - desconto;
+      
+      document.getElementById('os-total-pagar').innerText = totalAPagar.toFixed(2).replace('.', ',');
+    }
+
+    // 6. BUSCA DINÂMICA (Conectando com o Apps Script) (Mantido)
+    function buscarCliente(cpf) {
+      if(cpf.length === 14) { 
+        google.script.run.withSuccessHandler(function(cliente) {
+          if(cliente) {
+            document.getElementById('os-nome').value = cliente.nome;
+            document.getElementById('os-telefone').value = cliente.telefone;
+            document.getElementById('os-endereco').value = cliente.endereco;
+            document.getElementById('os-id-cliente').value = cliente.id; // Salva o ID do cliente se achou
+          } else {
+            document.getElementById('os-id-cliente').value = ''; // Limpa se for novo
+          }
+        }).buscarClientePorCPF(cpf);
+      }
+    }
+
+    // --- NOVA LÓGICA DE SALVAMENTO COMPLETO DA O.S. ---
+
+    function salvarTudoOS() {
+      // Coleta todos os dados da tela
+      const dadosOS = {
+        num: document.getElementById('os-num').value,
+        data: document.getElementById('os-data').value,
+        status: document.getElementById('os-status').value,
+        
+        cliente: {
+          id: document.getElementById('os-id-cliente').value,
+          nome: document.getElementById('os-nome').value,
+          cpf: document.getElementById('os-cpf').value,
+          telefone: document.getElementById('os-telefone').value,
+          endereco: document.getElementById('os-endereco').value
+        },
+        
+        veiculo: {
+          id: document.getElementById('os-id-veiculo').value, // (Não temos busca de veículo implementada no CPF, mas guardamos se houver)
+          placa: document.getElementById('os-placa').value,
+          modelo: document.getElementById('os-modelo').value,
+          ano: document.getElementById('os-ano').value,
+          cor: document.getElementById('os-cor').value,
+          chassi: document.getElementById('os-chassi').value // NOVO
+        },
+        
+        itens: [],
+        
+        resumo: {
+          subtotalServicos: document.getElementById('os-subtotal-servicos').innerText.replace(',', '.'),
+          subtotalMateriais: document.getElementById('os-subtotal-materiais').innerText.replace(',', '.'),
+          subtotalGeral: document.getElementById('os-subtotal-geral').innerText.replace(',', '.'),
+          desconto: document.getElementById('os-desconto').value,
+          totalAPagar: document.getElementById('os-total-pagar').innerText.replace(',', '.')
+        },
+        
+        observacoes: document.getElementById('os-observacoes').value
+      };
+
+      // Validação Básica
+      if (!dadosOS.cliente.nome || !dadosOS.cliente.cpf || !dadosOS.veiculo.placa) {
+        alert("Erro: Preencha pelo menos o Nome e CPF do Cliente, e a Placa do Veículo.");
+        return;
+      }
+      
+      if(document.querySelectorAll('#corpo-tabela-itens tr').length === 0) {
+        alert("Erro: Adicione pelo menos um item (Serviço ou Peça) na O.S.");
+        return;
+      }
+
+      // Coleta os itens da tabela
+      document.querySelectorAll('#corpo-tabela-itens tr').forEach(function(linha) {
+        const item = {
+          tipo: linha.querySelector('.tipo').value,
+          descricao: linha.querySelector('.descricao').value,
+          quantidade: linha.querySelector('.qtd').value,
+          valorUnit: linha.querySelector('.vunit').value,
+          valorTotal: linha.querySelector('.vtotal').value
+        };
+        // Só adiciona se tiver descrição
+        if(item.descricao) {
+          dadosOS.itens.push(item);
+        }
+      });
+
+      // Muda texto do botão para feedback
+      const btn = document.getElementById('btn-salvar-os');
+      btn.innerText = "⏳ Salvando O.S. no Sheets...";
+      btn.style.opacity = "0.7";
+      btn.disabled = true;
+
+      // Chama a função lá do arquivo de Back End
+      google.script.run.withSuccessHandler(function(idOSGerado) {
+        alert(`O.S. ${dadosOS.num} salva com sucesso!\nID: ${idOSGerado}\n\nVocê pode limpar o formulário para uma nova O.S.`);
+        
+        // Opcional: Limpar formulário (Exceto O.S. num/data que devem regenerar)
+        // document.getElementById('os-id-cliente').value = '';
+        // document.getElementById('os-nome').value = '';
+        // ... (resto dos campos) ...
+        
+        // Volta o botão ao normal
+        btn.innerText = "💾 Salvar O.S. Completa";
+        btn.style.opacity = "1";
+        btn.disabled = false;
+        
+        fecharTodosModais(); // Fecha o popup
+      }).salvarOSCompleta(dadosOS);
+    }
+
+    // --- LÓGICA DAS ABAS E CADASTROS GENÉRICOS (Mantido) ---
+
+    function enviarCadastroCliente() {
+      const dados = {
+        nome: document.getElementById('cad-nome').value,
+        cpf: document.getElementById('cad-cpf').value,
+        telefone: document.getElementById('cad-telefone').value,
+        endereco: document.getElementById('cad-endereco').value
+      };
+
+      if(!dados.nome || !dados.cpf) {
+        alert("Por favor, preencha pelo menos o Nome e o CPF.");
+        return;
+      }
+
+      event.target.innerText = "⏳ Salvando...";
+
+      google.script.run.withSuccessHandler(function(respostaObj) {
+        alert(respostaObj.mensagem);
+        
+        document.getElementById('cad-nome').value = '';
+        document.getElementById('cad-cpf').value = '';
+        document.getElementById('cad-telefone').value = '';
+        document.getElementById('cad-endereco').value = '';
+        document.querySelector('#cad-cliente .btn-salvar').innerText = "💾 Salvar Cliente";
+      }).salvarNovoCliente(dados);
+    }
+
+    function enviarCadastroVeiculo() {
+      const dados = {
+        tipo: document.getElementById('cad-tipo-veiculo').value,
+        placa: document.getElementById('cad-placa').value,
+        modelo: document.getElementById('cad-modelo').value,
+        ano: document.getElementById('cad-ano').value,
+        idCliente: '' // Cadastro geral não associa na hora, mantido original
+      };
+
+      if(dados.tipo === "Selecione..." || !dados.placa) {
+        alert("Por favor, informe o Tipo e a Placa do veículo.");
+        return;
+      }
+
+      event.target.innerText = "⏳ Salvando...";
+
+      google.script.run.withSuccessHandler(function(respostaObj) {
+        alert(respostaObj.mensagem);
+        
+        document.getElementById('cad-tipo-veiculo').value = 'Selecione...';
+        document.getElementById('cad-placa').value = '';
+        document.getElementById('cad-modelo').value = '';
+        document.getElementById('cad-ano').value = '';
+        document.querySelector('#cad-veiculo .btn-salvar').innerText = "💾 Salvar Veículo";
+      }).salvarNovoVeiculo(dados);
+    }
+
+    // LÓGICA DA BUSCA (Mantido, mas otimizado)
+    function pesquisarCliente() {
+      const filtro = document.getElementById('filtro-cliente').value;
+      const termo = document.getElementById('busca-cliente').value;
+      const areaResultado = document.getElementById('resultado-cliente');
+
+      if (!termo) { alert("Digite algo para pesquisar."); return; }
+
+      areaResultado.innerHTML = "⏳ Pesquisando...";
+
+      google.script.run.withSuccessHandler(function(lista) {
+        areaResultado.innerHTML = ""; 
+        
+        if (lista.length === 0) { areaResultado.innerHTML = "❌ Nenhum cliente encontrado."; return; }
+
+        lista.forEach(c => {
+          areaResultado.innerHTML += `
+            <div class="card-resultado">
+              <h4>${c.nome}</h4>
+              <p><strong>CPF:</strong> ${c.cpf}</p>
+              <p><strong>Telefone:</strong> ${c.telefone}</p>
+              <p><strong>Endereço:</strong> ${c.endereco}</p>
+            </div>
+          `;
+        });
+        document.getElementById('busca-cliente').value = "";
+      }).buscarClientesGeral(filtro, termo);
+    }
+
+    function pesquisarOS() {
+      const filtro = document.getElementById('filtro-os').value;
+      const termo = document.getElementById('busca-os').value;
+      const areaResultado = document.getElementById('resultado-os');
+
+      areaResultado.innerHTML = "⏳ Buscando O.S...";
+
+      google.script.run.withSuccessHandler(function(lista) {
+        areaResultado.innerHTML = "";
+        
+        if (lista.length === 0) { areaResultado.innerHTML = "❌ Nenhuma O.S. encontrada."; return; }
+
+        lista.forEach(os => {
+          areaResultado.innerHTML += `
+            <div class="card-resultado" style="border-left-color: ${os.status === 'Fechada' ? '#2ecc71' : '#f1c40f'}">
+              <h4>O.S. Nº: ${os.id}</h4>
+              <p><strong>Data:</strong> ${os.data}</p>
+              <p><strong>Status:</strong> ${os.status}</p>
+              <p><strong>ID Cliente:</strong> ${os.cliente}</p>
+            </div>
+          `;
+        });
+        document.getElementById('busca-os').value = "";
+      }).buscarOSGeral(filtro, termo);
+    }
+
+  </script>
+-->
+
+</body>
+</html>
