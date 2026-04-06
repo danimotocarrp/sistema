@@ -1,0 +1,458 @@
+/* Garante que nada saia da largura definida por causa de bordas ou preenchimento */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden; /* Garante que a página nunca balance para os lados */
+    width: 100%;
+}
+
+:root {
+    --bg-dark: #0e141e;
+    --primary-blue: #2086c2;
+    --text-light: #b9e5f5;
+    --card-bg: rgba(14, 20, 30, 0.95);
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjboPQrOK_KI16kMixbSyh4JXvLRjgHrcJbpWxoSD6ZZAoklm6on8HCPwTYdsuHmyfWhQhrywd3bM6uVWxRtvARh8BHVYyXH_z5TgRDbw4tm7Asvcs5ybhzn-mxuojKgf1RbY94a6dY1SiM7e04bz3N3RSJ_dzAGYZ5PKOYs_8mRI8bXLWKEGpqvHZccDk/s16000/background-pc.png') no-repeat center center fixed;
+    background-size: cover;
+    color: var(--text-light);
+    height: 100vh;
+}
+
+.background-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(14, 20, 30, 0.85); /* Tratamento para escurecer o fundo */
+    z-index: -1;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90vh;
+}
+
+.logo {
+    max-width: 350px;
+    margin-bottom: 40px;
+    filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.8));
+}
+
+/* Botões do Menu Principal com Efeito Neon */
+.menu-buttons button {
+    background-color: #0e141e; /* Fundo solicitado */
+    color: #b9e5f5;           /* Cor do texto clara para contraste */
+    border: 2px solid #2086c2; /* Borda solicitada */
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s ease; /* Transição suave para o efeito */
+    
+    /* Efeito Neon: Sombras externas e internas em tons de azul */
+    box-shadow: 0 0 10px rgba(32, 134, 194, 0.5), 
+                inset 0 0 5px rgba(32, 134, 194, 0.3);
+}
+
+/* Efeito ao passar o mouse (Hover) para ficar mais dinâmico */
+.menu-buttons button:hover {
+    background-color: #2086c2;
+    color: #ffffff;
+    /* Aumenta o brilho neon no hover */
+    box-shadow: 0 0 20px #2086c2, 
+                0 0 40px rgba(32, 134, 194, 0.6);
+    transform: translateY(-2px); /* Pequeno movimento para cima */
+}
+
+.menu-buttons button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.8);
+}
+
+footer {
+    position: fixed;
+    bottom: 0; width: 100%;
+    background: rgba(14, 20, 30, 0.5);
+    padding: 10px 0;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* Modais */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    margin: 5% auto;
+    padding: 30px;
+    border: 1px solid var(--primary-blue);
+    width: 90%;
+    max-width: 800px;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+}
+
+.close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--primary-blue);
+    cursor: pointer;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    background-color: #16202f;
+    border: 1px solid #2a3b52;
+    color: var(--text-light);
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 8px rgba(32, 134, 194, 0.5);
+}
+
+.divisor-gradient {
+    height: 3px;
+    background: linear-gradient(to right, rgba(52, 152, 219, 0), rgba(52, 152, 219, 1), rgba(52, 152, 219, 0));
+    border: none;
+    border-radius: 2px;
+    margin: 30px 0;
+}
+
+/* Tabela da OS */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #2a3b52;
+    padding: 10px;
+    text-align: left;
+}
+
+th { background-color: #1a2638; }
+
+.btn-save, .btn-action {
+    background-color: var(--primary-blue);
+    color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;
+}
+.btn-clear { background-color: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.btn-print { background-color: #f39c12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+
+.financeiro-box {
+    background: #16202f;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: right;
+    font-size: 18px;
+}
+
+.print-data {
+    background: #0b1018;
+    padding: 10px;
+    border-radius: 5px;
+    color: #8fa6b8;
+    font-size: 14px;
+}
+
+/* Esconde o template na tela normal */
+.only-print { display: none; }
+
+@media print {
+    /* 1. Configurações Gerais e Cor do Texto Principal */
+    body * { 
+        visibility: hidden; 
+    }
+
+    #print-template, #print-template * { 
+        visibility: visible !important; 
+        color: #0e141e !important; /* Cor padrão para todos os textos da OS */
+    }
+
+    #print-template {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: white !important;
+    }
+
+    /* 2. Cabeçalho */
+    .print-header { 
+        display: flex; 
+        justify-content: space-between; 
+        border-bottom: 2px solid #0e141e; 
+        padding-bottom: 10px; 
+        margin-bottom: 20px;
+    }
+
+    .print-logo { 
+        width: 140px; 
+    }
+
+    .header-right { 
+        text-align: right; 
+        font-size: 12px; 
+    }
+
+    /* 3. Título */
+    .print-title { 
+        text-align: center; 
+        margin: 20px 0; 
+    }
+
+    .print-title h1 { 
+        margin: 0; 
+        font-size: 22px; 
+        border-bottom: 1px solid #0e141e;
+        display: inline-block;
+        padding: 0 30px;
+    }
+
+    /* 4. Grade de Informações (Cliente, Veículo, etc) */
+    .print-info-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 8px; 
+        margin-bottom: 20px; 
+    }
+
+    .info-item { 
+        border-bottom: 1px solid #ddd; 
+        padding: 5px 0; 
+        font-size: 13px; 
+    }
+
+    /* 5. Tabela de Itens */
+    .print-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-bottom: 20px; 
+    }
+
+    .print-table th { 
+        background: #f2f2f2 !important; 
+        border: 1px solid #0e141e; 
+        padding: 8px; 
+        text-align: left; 
+    }
+
+    .print-table td { 
+        border: 1px solid #0e141e; 
+        padding: 8px; 
+    }
+
+    /* 6. Resumo e TOTAL EM VERMELHO */
+    .print-summary { 
+        text-align: right; 
+        margin-top: 20px; 
+        font-size: 14px; 
+    }
+
+    /* Estilo específico para o campo de TOTAL */
+    .print-total, .print-total * { 
+        color: #c80000 !important; /* Vermelho solicitado */
+        font-weight: bold; 
+        font-size: 20px; 
+        border-top: 2px solid #0e141e; 
+        display: inline-block; 
+        padding-top: 5px;
+        margin-top: 5px;
+    }
+
+    /* 7. Assinaturas */
+    .print-signatures { 
+        display: flex; 
+        justify-content: space-between; 
+        margin-top: 60px; 
+    }
+
+    .sig-box { 
+        width: 45%; 
+        text-align: center; 
+        font-size: 12px; 
+    }
+
+    .sig-box hr { 
+        border: 0; 
+        border-top: 1px solid #0e141e; 
+        margin-bottom: 5px; 
+    }
+}
+
+/* --- RESPONSIVIDADE PARA O CELULAR --- */
+@media (max-width: 600px) {
+    /* 1. Ajusta a largura do modal para ocupar quase toda a tela */
+    .modal-content {
+        width: 95% !important;
+        margin: 10% auto;
+        padding: 15px;
+    }
+
+    /* 2. Faz as abas ficarem roláveis para os lados se não couberem */
+    .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        display: block; /* Muda de flex para block para o scroll funcionar */
+        border-bottom: 2px solid #2086c2;
+    }
+    
+    .tab-btn {
+        display: inline-block;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    /* 3. Empilha os inputs e botões (um abaixo do outro) */
+    .input-group {
+        flex-direction: column; 
+        gap: 8px;
+    }
+
+    .input-group input {
+        width: 100%;
+    }
+
+    .btn-consultar, .btn-limpar {
+        width: 100%; /* Botões largos facilitam o toque no celular */
+        padding: 12px;
+    }
+
+    /* 4. Ajusta os Radio Buttons para não ficarem espremidos */
+    .radio-group-inline {
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    /* 5. Ajusta o tamanho da fonte dos resultados */
+    .resultado-box {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    /* 6. Melhora os botões de ação (Lápis/Lixeira) para o polegar */
+    .btn-acao {
+        padding: 10px;
+        margin: 5px 2px;
+        display: inline-block;
+    }
+}
+
+/* Estilização dos Radio Buttons */
+.radio-container {
+    background: rgba(16, 20, 26, 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    border: 1px solid #2a3b52;
+}
+
+.radio-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.radio-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+/* Aumenta o tamanho do círculo para facilitar o toque no mobile */
+.radio-label input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #2086c2; /* Cor azul neon solicitada */
+    cursor: pointer;
+}
+
+/* --- ESTILOS DAS CONSULTAS --- */
+.tabs {
+    display: flex; gap: 10px; margin-bottom: 20px;
+    border-bottom: 2px solid #2086c2; padding-bottom: 5px;
+}
+.tab-btn {
+    background: transparent; color: #b9e5f5;
+    border: none; padding: 10px 20px; cursor: pointer;
+    font-size: 16px; font-weight: bold;
+}
+.tab-btn.active {
+    background: #2086c2; color: #fff; border-radius: 5px 5px 0 0;
+}
+.busca-container {
+    margin-bottom: 20px; background: rgba(0,0,0,0.2);
+    padding: 15px; border-radius: 8px;
+}
+.input-group {
+    display: flex; gap: 10px; margin-top: 10px;
+}
+.input-group input { flex: 1; }
+.btn-consultar { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.btn-limpar { background: #d62c1a; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.resultado-box {
+    background: rgba(14, 20, 30, 0.5); padding: 15px; border-radius: 8px;
+    min-height: 100px; border: 1px solid #2a3b52;
+}
+
+/* Divisor solicitado */
+.divisor-gradient {
+    height: 3px;
+    background: linear-gradient(to right, rgba(52, 152, 219, 0), rgba(52, 152, 219, 1), rgba(52, 152, 219, 0));
+    border: none;
+    border-radius: 2px;
+    margin: 30px 0;
+}
+
+/* Botões de Ação nas Listas */
+.btn-acao {
+    border: none; padding: 5px 10px; margin-left: 5px; border-radius: 3px; cursor: pointer; font-size: 12px;
+}
+.btn-copiar { background: #ffc107; color: #000; }
+.btn-editar { background: #17a2b8; color: #fff; }
+.btn-excluir { background: #dc3545; color: #fff; }
+
+/* Alinhamento perfeito dos Radios */
+.radio-group-inline {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.radio-group-inline label {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Espaço exato entre a bolinha e o texto */
+    cursor: pointer;
+    font-weight: bold;
+}
