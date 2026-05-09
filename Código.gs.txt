@@ -1,0 +1,317 @@
+// ID da planilha
+const SPREADSHEET_ID = '1B_XjQy-5tuEl6yBU_UYK8pJBrg60hNvsedHCLIFhzPY';
+
+/**
+ * Função para receber dados do site (POST)
+ * Agora gerencia tanto CADASTRO quanto EXCLUSÃO
+ */
+function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  
+  // --- EXCLUSÃO COMPLETA DE ORDEM DE SERVIÇO ---
+  if (data.operacao === "EXCLUIR_OS") {
+    const sucesso = excluirOrdemServicoCompleta(data.idValor);
+    return ContentService.createTextOutput(JSON.stringify({
+      "status": sucesso ? "sucesso" : "erro",
+      "mensagem": sucesso ? "Ordem de Serviço excluída" : "Ordem de Serviço não encontrada"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // --- NOVA LÓGICA: VERIFICA SE É UMA OPERAÇÃO DE EXCLUSÃO ---
+  if (data.operacao === "EXCLUIR") {
+    const sucesso = excluirRegistro(data.tabela, data.idCampo, data.idValor);
+    return ContentService.createTextOutput(JSON.stringify({ 
+      "status": sucesso ? "sucesso" : "erro", 
+      "mensagem": sucesso ? "Registro excluído" : "Registro não encontrado" 
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // --- NOVA LÓGICA: OPERAÇÃO DE EDIÇÃO (UPDATE) ---
+  if (data.operacao === "EDITAR") {
+    const sheet = ss.getSheetByName(data.tabela);
+    if (!sheet) return resError("Tabela não encontrada para edição");
+
+    const valores = sheet.getDataRange().getValues();
+    const cabecalho = valores[0];
+    let colIndex = cabecalho.indexOf(data.idCampo);
+
+    // Fallback para a aba ORDEM_SERVICO, caso o cabeçalho tenha outro nome para o ID.
+    if (colIndex === -1 && data.tabela === "ORDEM_SERVICO") {
+      colIndex = obterIndice(cabecalho, ["ID_OS", "ID_ORDEM_SERVICO", "ID_ORDEM", "ID"]);
+    }
+
+    if (colIndex === -1) return resError("Campo de ID não encontrado: " + data.idCampo);
+    
+    for (let i = 1; i < valores.length; i++) {
+      if (String(valores[i][colIndex]) === String(data.idValor)) {
+        let novaLinha = [];
+
+        if (data.tabela === "CLIENTES") {
+          novaLinha = [data.idValor, data.nome, data.cpf || "", data.cnpj || "", data.telefone, data.endereco];
+        }
+        else if (data.tabela === "VEICULOS") {
+          novaLinha = [data.idValor, data.idCliente, data.tipo, data.marca, data.modelo, data.placa, data.cor, data.ano];
+        }
+        else if (data.tabela === "ORDEM_SERVICO") {
+          novaLinha = [
+            data.idValor, data.id_cliente, data.id_veiculo, data.num_os,
+            data.data_os, data.descricao, data.desconto, data.subtotal, data.total_geral
+          ];
+        }
+        else {
+          return resError("Edição ainda não configurada para a tabela: " + data.tabela);
+        }
+
+        sheet.getRange(i + 1, 1, 1, novaLinha.length).setValues([novaLinha]);
+
+        if (data.tabela === "ORDEM_SERVICO") {
+          atualizarItensDaOS(ss, data.idValor, data.itens || []);
+        }
+
+        return ContentService.createTextOutput(JSON.stringify({ "status": "sucesso" }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    return resError("ID não encontrado para edição: " + data.idValor);
+  }
+
+  // --- LÓGICA DE CADASTRO ---
+  const sheet = ss.getSheetByName(data.tabela);
+  if (!sheet) return resError("Tabela não encontrada");
+
+  const novoId = gerarProximoId(sheet, data.prefixo);
+  
+  if (data.tabela === "CLIENTES") {
+    sheet.appendRow([novoId, data.nome, data.cpf || "", data.cnpj || "", data.telefone, data.endereco]);
+  } 
+  else if (data.tabela === "VEICULOS") {
+    sheet.appendRow([novoId, data.idCliente, data.tipo, data.marca, data.modelo, data.placa, data.cor, data.ano]);
+  } 
+  else if (data.tabela === "ORDEM_SERVICO") {
+    sheet.appendRow([
+      novoId, data.id_cliente, data.id_veiculo, data.num_os, 
+      data.data_os, data.descricao, data.desconto, data.subtotal, data.total_geral
+    ]);
+
+    const sheetServicos = ss.getSheetByName("SERVICOS");
+    const sheetItensOS = ss.getSheetByName("ITENS_OS");
+
+    if (data.itens && data.itens.length > 0) {
+      let pNumServ = obterUltimoNumeroId(sheetServicos, "SRV");
+      let pNumItem = obterUltimoNumeroId(sheetItensOS, "ITM");
+
+      data.itens.forEach(item => {
+        let idServico = "SRV" + String(pNumServ).padStart(4, '0');
+        sheetServicos.appendRow([idServico, item.nome_servico || "Serviço s/ nome", item.valor_unit]);
+        pNumServ++;
+
+        let idItem = "ITM" + String(pNumItem).padStart(4, '0');
+        sheetItensOS.appendRow([idItem, novoId, idServico, item.quantidade]);
+        pNumItem++;
+      });
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({ "status": "sucesso", "id": novoId }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * FUNÇÃO PARA EXCLUIR REGISTROS
+ * Procura o ID na coluna correta e deleta a linha
+ */
+function excluirRegistro(tabelaNome, idCampo, idValor) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(tabelaNome);
+  if (!sheet) return false;
+
+  const data = sheet.getDataRange().getValues();
+  const cabecalho = data[0];
+  const colIndex = cabecalho.indexOf(idCampo);
+
+  if (colIndex === -1) return false;
+
+  // Percorre de baixo para cima para não quebrar os índices ao deletar
+  let excluiu = false;
+  for (let i = data.length - 1; i >= 1; i--) {
+    if (String(data[i][colIndex]) === String(idValor)) {
+      sheet.deleteRow(i + 1);
+      excluiu = true;
+    }
+  }
+  return excluiu;
+}
+
+/**
+ * Função para buscar dados da planilha (GET)
+ */
+function doGet(e) {
+  const tabelaNome = e.parameter.tabela;
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(tabelaNome);
+  
+  if (!sheet) return resError("Tabela não encontrada");
+  
+  const data = sheet.getDataRange().getValues();
+  const cabecalho = data.shift();
+  
+  const jsonOutput = data.map(row => {
+    let obj = {};
+    cabecalho.forEach((col, i) => obj[col] = row[i]);
+    return obj;
+  });
+
+  return ContentService.createTextOutput(JSON.stringify(jsonOutput))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Lógica para gerar IDs automáticos
+ */
+function gerarProximoId(sheet, prefixo) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return prefixo + "0001";
+  
+  const ultimoId = sheet.getRange(lastRow, 1).getValue().toString(); 
+  const numeroAtual = parseInt(ultimoId.replace(prefixo, ""));
+  const proximoNumero = isNaN(numeroAtual) ? 1 : numeroAtual + 1;
+  return prefixo + proximoNumero.toString().padStart(4, '0');
+}
+
+// Auxiliar para pegar o próximo número de ID de tabelas secundárias
+function obterUltimoNumeroId(sheet, prefixo) {
+  const lr = sheet.getLastRow();
+  if (lr <= 1) return 1;
+  const uId = String(sheet.getRange(lr, 1).getValue() || "");
+  const num = parseInt(uId.replace(prefixo, ""));
+  return isNaN(num) ? 1 : num + 1;
+}
+
+
+function obterIndice(cabecalho, nomes) {
+  for (let i = 0; i < nomes.length; i++) {
+    const idx = cabecalho.indexOf(nomes[i]);
+    if (idx !== -1) return idx;
+  }
+  return -1;
+}
+
+function atualizarItensDaOS(ss, idOS, itens) {
+  const sheetItensOS = ss.getSheetByName("ITENS_OS");
+  const sheetServicos = ss.getSheetByName("SERVICOS");
+  if (!sheetItensOS || !sheetServicos) return;
+
+  const dadosItens = sheetItensOS.getDataRange().getValues();
+  if (dadosItens.length > 1) {
+    const cabItens = dadosItens[0];
+    const colIdOS = obterIndice(cabItens, ["ID_OS", "ID_ORDEM_SERVICO"]);
+    const colIdServico = obterIndice(cabItens, ["ID_SERVICO"]);
+    const servicosAntigos = [];
+
+    if (colIdOS !== -1) {
+      for (let i = dadosItens.length - 1; i >= 1; i--) {
+        if (String(dadosItens[i][colIdOS]) === String(idOS)) {
+          if (colIdServico !== -1) servicosAntigos.push(String(dadosItens[i][colIdServico]));
+          sheetItensOS.deleteRow(i + 1);
+        }
+      }
+    }
+
+    if (servicosAntigos.length > 0) {
+      excluirServicosPorIds(sheetServicos, servicosAntigos);
+    }
+  }
+
+  adicionarItensDaOS(ss, idOS, itens);
+}
+
+function adicionarItensDaOS(ss, idOS, itens) {
+  const sheetServicos = ss.getSheetByName("SERVICOS");
+  const sheetItensOS = ss.getSheetByName("ITENS_OS");
+  if (!sheetServicos || !sheetItensOS || !itens || itens.length === 0) return;
+
+  let pNumServ = obterUltimoNumeroId(sheetServicos, "SRV");
+  let pNumItem = obterUltimoNumeroId(sheetItensOS, "ITM");
+
+  itens.forEach(item => {
+    let idServico = "SRV" + String(pNumServ).padStart(4, '0');
+    sheetServicos.appendRow([idServico, item.nome_servico || "Serviço s/ nome", item.valor_unit || 0]);
+    pNumServ++;
+
+    let idItem = "ITM" + String(pNumItem).padStart(4, '0');
+    sheetItensOS.appendRow([idItem, idOS, idServico, item.quantidade || 1]);
+    pNumItem++;
+  });
+}
+
+function excluirServicosPorIds(sheetServicos, idsServicos) {
+  if (!sheetServicos || !idsServicos || idsServicos.length === 0) return;
+
+  const data = sheetServicos.getDataRange().getValues();
+  if (data.length <= 1) return;
+
+  const cab = data[0];
+  const colIdServico = obterIndice(cab, ["ID_SERVICO"]);
+  if (colIdServico === -1) return;
+
+  for (let i = data.length - 1; i >= 1; i--) {
+    if (idsServicos.indexOf(String(data[i][colIdServico])) !== -1) {
+      sheetServicos.deleteRow(i + 1);
+    }
+  }
+}
+
+function excluirOrdemServicoCompleta(idOS) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheetOS = ss.getSheetByName("ORDEM_SERVICO");
+  const sheetItensOS = ss.getSheetByName("ITENS_OS");
+  const sheetServicos = ss.getSheetByName("SERVICOS");
+
+  if (!sheetOS) return false;
+
+  const servicosParaExcluir = [];
+
+  if (sheetItensOS) {
+    const dadosItens = sheetItensOS.getDataRange().getValues();
+    if (dadosItens.length > 1) {
+      const cabItens = dadosItens[0];
+      const colIdOS = obterIndice(cabItens, ["ID_OS", "ID_ORDEM_SERVICO"]);
+      const colIdServico = obterIndice(cabItens, ["ID_SERVICO"]);
+
+      if (colIdOS !== -1) {
+        for (let i = dadosItens.length - 1; i >= 1; i--) {
+          if (String(dadosItens[i][colIdOS]) === String(idOS)) {
+            if (colIdServico !== -1) servicosParaExcluir.push(String(dadosItens[i][colIdServico]));
+            sheetItensOS.deleteRow(i + 1);
+          }
+        }
+      }
+    }
+  }
+
+  if (sheetServicos && servicosParaExcluir.length > 0) {
+    excluirServicosPorIds(sheetServicos, servicosParaExcluir);
+  }
+
+  const dadosOS = sheetOS.getDataRange().getValues();
+  if (dadosOS.length <= 1) return false;
+
+  const cabOS = dadosOS[0];
+  const colIdOS = obterIndice(cabOS, ["ID_OS", "ID_ORDEM_SERVICO", "ID_ORDEM", "ID"]);
+  if (colIdOS === -1) return false;
+
+  let excluiuOS = false;
+  for (let i = dadosOS.length - 1; i >= 1; i--) {
+    if (String(dadosOS[i][colIdOS]) === String(idOS)) {
+      sheetOS.deleteRow(i + 1);
+      excluiuOS = true;
+    }
+  }
+
+  return excluiuOS;
+}
+
+function resError(msg) {
+  return ContentService.createTextOutput(JSON.stringify({ "status": "erro", "message": msg }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
